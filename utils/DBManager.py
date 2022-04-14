@@ -1,9 +1,13 @@
 # Importing Libraries
 from datetime import datetime
 from pymongo import MongoClient
-from tools import DateToDateTime
+from tools import DateToDateTime, memberDataToListItem
+
 
 '''
+Data Structure Info
+-------------------
+
 Data Dictionary
 { 
 MemId: Int
@@ -18,6 +22,7 @@ Fee : Int,
 FeeType : Int,
 LastPaid : DateTime 
 }
+
 
 Calendar Dictionary
 {
@@ -36,11 +41,12 @@ class DBManager():
         self.infoCollection = self.db[config["infoCollection"]]
         self.calendarCollection = self.db[config["calendarCollection"]]
         self.MULTIPLIER = config["MULTIPLIER"]
+        self.itemsPerPage = config["itemsPerPage"]
         if(not("MemId_1" in self.infoCollection.index_information())):
             print(self.infoCollection.create_index([('MemId', 1)],unique=True))
         if(not("Date_1" in self.calendarCollection.index_information())):
             print(self.calendarCollection.create_index([('Date', 1)],unique=True))
-        
+
         
     def insertInfo(self, data: dict) -> None:
         self.infoCollection.insert_one(data)
@@ -55,12 +61,55 @@ class DBManager():
     
     def searchInfo(self, string : str) -> list:
         docs = []
-        for doc in self.infoCollection.find({"$or":[{"Name":{"$regex":string,"$options":"i"}},
-                                                    {"Address":{"$regex":string,"$options":"i"}}]
+        for doc in self.infoCollection.find({"$or":[{"MemId":{"$regex":string,"$options":"i"}},
+                                                    {"Name":{"$regex":string,"$options":"i"}},
+                                                    {"NameSecondary":{"$regex":string,"$options":"i"}},
+                                                    {"ResidentialAddress":{"$regex":string,"$options":"i"}},
+                                                    {"ResidentialNumber":{"$regex":string,"$options":"i"}},
+                                                    {"BusinessAddress":{"$regex":string,"$options":"i"}},
+                                                    {"BusinessNumber":{"$regex":string,"$options":"i"}},
+                                                    ]
                                              }):
             docs.append(doc)
         return docs
+
     
+    def getMemberListItems(self, page : int):
+        items = []
+        lower = page*self.itemsPerPage
+        upper = (page+1)*self.itemsPerPage
+        for i, doc in enumerate(self.infoCollection({}).sort("MemId"),start=1):
+            if(lower<i<=upper):
+                items.append(memberDataToListItem(doc))
+        return items
+
+
+    def checkDueFees(self) -> list:
+        docs = []
+        today = datetime.today()
+        matches = self.infoCollection.aggregrate([{
+            "$match" : {
+                "$expr" : {
+                    "$lt" : [
+                        "$FeeType",
+                        {"$dateDiff" : {
+                            "startDate" : "$LastPaid",
+                            "endDate" : today,
+                            "unit" : "month"
+                            }
+                         } 
+                        ]
+                    }
+                }
+            },
+            {
+            "$sort" : {"LastPaid" : 1}
+            }
+            ])
+        for doc in matches:
+            docs.append(doc)
+        return docs
+        
     
     def getMemId(self, name: str) -> int:
         number = (ord(name[0].lower())-ord('a'))*self.MULTIPLIER 
@@ -100,6 +149,7 @@ if __name__ == "__main__":
     config = {"clientAddress":"mongodb://localhost:27017/",
               "DB":"TestGymDB",
               "infoCollection":"MemberData",
-              "calendarCollection":"CalendarData"
+              "calendarCollection":"CalendarData",
+              "MULTIPLIER" : 10**4
               }
     db = DBManager(config)

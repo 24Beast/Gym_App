@@ -1,12 +1,12 @@
-import time
 from datetime import datetime
 from datetime import timedelta
 from pymongo import MongoClient
-from random import randrange
+from random import randrange,choice
 
-START = datetime.strptime('1/1/2022 1:01 AM', '%d/%m/%Y %I:%M %p')
+START = datetime.strptime('1/1/2021 1:01 AM', '%d/%m/%Y %I:%M %p')
 END = datetime.strptime('1/12/2022 1:01 AM', '%d/%m/%Y %I:%M %p')
 MIN_TIME = datetime.min.time()
+FEE_OPTIONS = [1,3,6,12]
 
 def randomDate():
     delta = END - START
@@ -19,7 +19,8 @@ def createEntry(collection) -> dict:
     currDate = randomDate()
     newDate = randomDate()
     data = {"Date1" : currDate,
-            "Date2" : newDate
+            "Date2" : newDate,
+            "FeeType" : choice(FEE_OPTIONS)
             }
     return data
 
@@ -29,39 +30,30 @@ if __name__ == "__main__":
     db = client["test_db"]
     collection = db["collection_2"]
     
+    today = datetime.today()
     
     for i in range(25):
         collection.insert_one(createEntry(collection))
-        
-    for doc in collection.find({"$expr" :
-                                {"$lt" :
-                                 [0,
-                                  {"dateDiff" : {"startDate" : "$Date2",
-                                                 "endDate" : "$Date1",
-                                                 "unit" : "month"}
-                                   }
-                                  ]
-                                 }
-                                }):
-        print(doc)
-        
+                
     
     pipeline = [{"$match" :
                  {
                      "$expr" :
                          {
-                             "$lte" : [
-                                 3,
+                             "$lt" : [
+                                 "$FeeType",
                                  {"$dateDiff" : {
                                      "startDate" : "$Date1",
-                                     "endDate" : "$Date2",
+                                     "endDate" : today,
                                      "unit" : "month"
                                      }
                                  }
                                  ]
                          }
                   }
-                 }]
+                 },
+                {"$sort" : {"Date1" : 1}
+                }]
     
     for i, doc in enumerate(collection.aggregate(pipeline)):
         print(i,doc)

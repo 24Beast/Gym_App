@@ -1,3 +1,4 @@
+# Importing Libraries
 from PyQt5 import QtGui
 from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QWidget,QCalendarWidget
@@ -5,20 +6,27 @@ from PyQt5.QtWidgets import QWidget,QCalendarWidget
 
 MIN_DATE = QDate.fromString("01/01/2022","dd/MM/yyyy")
 
+
+# Class Definition
+
 class calendarWidget(QWidget):
 
     def __init__(self) -> None:
         super().__init__()
-        self.calendar = QCalendarWidget(self)
-        self.calendar.activated.connect(self.select_date)
+        self.initCalendar()
         self.selectedDates = set()
-        self.calendar.setMinimumDate(MIN_DATE)
-        self.calendar.setStyleSheet("background-color : lightblue;")
         self.cellFormat1 = QtGui.QTextCharFormat()
         self.cellFormat1.setBackground(QtGui.QColor("lightblue"))
         self.cellFormat2 = QtGui.QTextCharFormat()
         self.cellFormat2.setBackground(QtGui.QColor("lightgreen"))
-        
+    
+    
+    def initCalendar(self):
+        self.calendar = QCalendarWidget(self)
+        self.calendar.setMinimumDate(MIN_DATE)
+        self.calendar.activated.connect(self.select_date)
+        self.calendar.setStyleSheet("background-color : lightblue;")
+
     
     def select_date(self,date) -> None:
         if(date in self.selectedDates):
