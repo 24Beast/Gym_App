@@ -54,6 +54,7 @@ class pendingListWidget(QWidget):
 
 if __name__ == "__main__":    
     import sys
+    sys.path.append("../")
     from PyQt5.QtWidgets import QApplication, QMainWindow
     from utils.DBManager import DBManager
     from utils.tools import getConfig

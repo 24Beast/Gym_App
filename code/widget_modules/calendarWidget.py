@@ -1,4 +1,6 @@
 # Importing Libraries
+import sys
+sys.path.append("../")
 from PyQt5 import QtGui
 from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QWidget, QCalendarWidget
