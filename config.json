@@ -1,0 +1,9 @@
+{"clientAddress":"mongodb://localhost:27017/",
+    "DB":"TestGymDB",
+    "infoCollection":"MemberData",
+    "calendarCollection":"CalendarData",
+    "MULTIPLIER" : 10000,
+    "itemsPerPage" : 20,
+    "color1" : "grey",
+    "color2" : "lightblue"
+}

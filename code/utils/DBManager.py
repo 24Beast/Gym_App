@@ -1,7 +1,8 @@
 # Importing Libraries
+from math import log10
 from datetime import datetime
 from pymongo import MongoClient
-from tools import DateToDateTime, memberDataToListItem
+from .tools import DateToDateTime, memberDataToListItem, pendingDataToListItem
 
 
 '''
@@ -41,6 +42,7 @@ class DBManager():
         self.infoCollection = self.db[config["infoCollection"]]
         self.calendarCollection = self.db[config["calendarCollection"]]
         self.MULTIPLIER = config["MULTIPLIER"]
+        self.numLen = log10(self.MULTIPLIER)
         self.itemsPerPage = config["itemsPerPage"]
         if(not("MemId_1" in self.infoCollection.index_information())):
             print(self.infoCollection.create_index([('MemId', 1)],unique=True))
@@ -76,18 +78,21 @@ class DBManager():
     
     def getMemberListItems(self, page : int):
         items = []
-        lower = page*self.itemsPerPage
-        upper = (page+1)*self.itemsPerPage
-        for i, doc in enumerate(self.infoCollection({}).sort("MemId"),start=1):
+        lower = (page-1)*self.itemsPerPage
+        upper = page*self.itemsPerPage
+        for i, doc in enumerate(self.infoCollection.find({}).sort("MemId"),start=1):
             if(lower<i<=upper):
+                doc["ID"] = self.memNumToMemId(doc["MemId"])
                 items.append(memberDataToListItem(doc))
+            elif(i>upper):
+                break
         return items
 
 
     def checkDueFees(self) -> list:
         docs = []
         today = datetime.today()
-        matches = self.infoCollection.aggregrate([{
+        matches = self.infoCollection.aggregate([{
             "$match" : {
                 "$expr" : {
                     "$lt" : [
@@ -107,12 +112,13 @@ class DBManager():
             }
             ])
         for doc in matches:
-            docs.append(doc)
+            doc["ID"] = self.memNumToMemId(doc["MemId"])
+            docs.append(pendingDataToListItem(doc))
         return docs
         
     
-    def getMemId(self, name: str) -> int:
-        number = (ord(name[0].lower())-ord('a'))*self.MULTIPLIER 
+    def getMemNum(self, name: str) -> int:
+        number = (ord(name[0].upper())-ord('A'))*self.MULTIPLIER 
         memNum = number
         for doc in self.infoCollection.find({"MemId": {"$gt": (number-1),"$lt": (number + self.MULTIPLIER)}}).sort("MemId",-1):
             memNum = doc["MemId"] + 1
@@ -123,33 +129,36 @@ class DBManager():
         return memNum
     
     
-    def addCalender(self, date, MemId) -> None:
+    def memNumToMemId(self, memNum : int) -> str:
+        alphabet = chr(int(memNum/self.MULTIPLIER) + ord("A"))
+        number = str(memNum%self.MULTIPLIER).zfill(int(self.numLen)) 
+        return alphabet+number
+    
+    
+    def addCalender(self, date, MemNum) -> None:
         if(type(date)!=datetime):
             date = DateToDateTime(date)
-        self.calendarCollection.update_one({"Date":date},{"$addToSet":{"MemIds":MemId}})
-        print(f"Added MemId : {MemId} to Date : {date}")
+        self.calendarCollection.update_one({"Date":date},{"$addToSet":{"MemIds":MemNum}})
+        print(f"Added MemId : {MemNum} to Date : {date}")
     
 
-    def removeCalender(self, date, MemId) -> None:
+    def removeCalender(self, date, MemNum) -> None:
         if(type(date)!=datetime):
             date = DateToDateTime(date)
-        self.calendarCollection.update_one({"Date":date},{"$pull":{"MemIds":MemId}})
-        print(f"Removed MemId : {MemId} to Date : {date}")
+        self.calendarCollection.update_one({"Date":date},{"$pull":{"MemIds":MemNum}})
+        print(f"Removed MemId : {MemNum} to Date : {date}")
 
     
-    def fetchCalender(self, MemId) -> list:
+    def fetchCalender(self, MemNum) -> list:
         dates = []
-        for doc in self.calendarCollection.find({"MemIds":{"$elemMatch":{"$eq":MemId}}}):
+        for doc in self.calendarCollection.find({"MemIds":{"$elemMatch":{"$eq":MemNum}}}):
             dates.append(doc["Date"])
         return dates
 
 
 
 if __name__ == "__main__":
-    config = {"clientAddress":"mongodb://localhost:27017/",
-              "DB":"TestGymDB",
-              "infoCollection":"MemberData",
-              "calendarCollection":"CalendarData",
-              "MULTIPLIER" : 10**4
-              }
+    from ..utils.tools import getConfig
+    
+    config = getConfig()
     db = DBManager(config)

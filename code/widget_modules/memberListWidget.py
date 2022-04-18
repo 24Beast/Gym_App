@@ -1,16 +1,31 @@
 # Importing Libraries
-from PyQt5.QtWidgets import QWidget, QListWidget, QListWidgetItem
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QWidget, QListWidget
 
 # Class Definition
 
 class memberListWidget(QWidget):
     
-    def __init__(self) -> None:
+    def __init__(self,config : dict, db) -> None:
         super().__init__()
+        self.db = db
+        self.config = config
         self.listWidget = QListWidget(self)
+        self.listWidget.setMinimumSize(QtCore.QSize(600,450))
         self.currentRow = 0
-        
+        self.currentPage = 1
+        self.displayPage(self.currentPage)
     
+    
+    def displayPage(self, page = -1):
+        self.emptyList()
+        if(page!=-1):
+            self.currentPage = page
+        listItems = self.db.getMemberListItems(self.currentPage)
+        print(len(listItems))
+        self.insertItems(listItems)
+        
+        
     def insertItems(self, items : list):
         for item in items:
             self.listWidget.insertItem(self.currentRow, item)
@@ -32,14 +47,19 @@ class memberListWidget(QWidget):
 if __name__ == "__main__":    
     import sys
     from PyQt5.QtWidgets import QApplication, QMainWindow
-    # create pyqt5 app
+    from utils.DBManager import DBManager
+    from utils.tools import getConfig
+    
+    config = getConfig()
+
+    db = DBManager(config)
+
     App = QApplication(sys.argv)
-    # create the instance of our Window
     window = QMainWindow()
-    window.setGeometry(0, 0, 400, 300)
-    #Add List
-    lwidget = memberListWidget()
+    window.setGeometry(0, 0, 800, 600)
+
+    lwidget = memberListWidget(config,db)
     window.setCentralWidget(lwidget)
     window.show()
-    # start the app
+
     sys.exit(App.exec_())

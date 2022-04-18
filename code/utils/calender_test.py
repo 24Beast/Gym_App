@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from random import randint,randrange
 
 START = datetime.strptime('1/1/2022 1:01 AM', '%d/%m/%Y %I:%M %p')
-END = datetime.strptime('1/12/2022 1:01 AM', '%d/%m/%Y %I:%M %p')
+END = datetime.strptime('1/4/2022 1:01 AM', '%d/%m/%Y %I:%M %p')
 MAX_IDS = 1000
 MIN_TIME = datetime.min.time()
 
