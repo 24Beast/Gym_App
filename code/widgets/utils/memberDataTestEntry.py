@@ -31,7 +31,9 @@ MemIds : List
 
 NAMES = ["Bhanu Tokas","Dharam Singh Tokas","Yogita Tokas","Tushar Tokas","Akhil Menon", "Satwik Bhardwaj",
          "Rahul Agarwal", "Rohit Jakinapalli", "Urvish Chokshi", "Lakshay Sood", "Geetansh Kumar", "Ansh Riyal",
-         "Ritvik Nagpal", "Sachin Jeph", "Vaibhav Beriwal", "Sarthak Arora", "Nikunj Madan", "Leo Adlakha"]
+         "Ritvik Nagpal", "Sachin Jeph", "Vaibhav Beriwal", "Sarthak Arora", "Nikunj Madan", "Leo Adlakha",
+         "David Warner", "Sachin Tendulkar", "Akash Dhiman", "Ashutosh Verma", "Aryan Ganjoo", "Harsh Kataria",
+         "Pranav Kataria", "Jasbir Kataria"]
 
 ADDRESS = """Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia,
 molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum

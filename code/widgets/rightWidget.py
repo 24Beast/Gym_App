@@ -1,7 +1,7 @@
 # Importing Libraries
 from PyQt5 import QtCore
-from calendarWidget import calendarWidget
-from pendingListWidget import pendingListWidget
+from widgets.calendarWidget import calendarWidget
+from widgets.pendingListWidget import pendingListWidget
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 # Class Definition
@@ -12,14 +12,20 @@ class rightWidget(QWidget):
         super().__init__()
         self.db = db
         self.config = config
+        self.calWidget = calendarWidget(self.config, self.db)
+        self.pendWidget = pendingListWidget(self.config, self.db)
+        self.pendWidget.listWidget.itemDoubleClicked.connect(self.selectCalendar)
         self.initLayout()
     
     def initLayout(self):
         self.layout = QVBoxLayout()
-        # Add widgets to the layout
-        self.layout.addWidget(calendarWidget(self.config, self.db))
-        self.layout.addWidget(pendingListWidget(self.config, self.db))
+        self.layout.addWidget(self.calWidget)
+        self.layout.addWidget(self.pendWidget)
         self.setLayout(self.layout)
+    
+    def selectCalendar(self,item):
+        MemId = item.text().split("\t")[0]
+        self.calWidget.getMemberCalendar(MemId)
 
 
 

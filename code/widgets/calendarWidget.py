@@ -2,9 +2,10 @@
 import sys
 sys.path.append("../")
 from PyQt5 import QtGui
+from PyQt5 import QtCore
 from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QWidget, QCalendarWidget
-from utils.tools import DateTimeToQDate, QDatetoDateTime
+from widgets.utils.tools import DateTimeToQDate, QDatetoDateTime
 
 MIN_DATE = QDate.fromString("01/01/2022","dd/MM/yyyy")
 
@@ -23,12 +24,13 @@ class calendarWidget(QWidget):
         self.cellFormat1 = QtGui.QTextCharFormat()
         self.cellFormat1.setBackground(QtGui.QColor("lightblue"))
         self.cellFormat2 = QtGui.QTextCharFormat()
-        self.cellFormat2.setBackground(QtGui.QColor("lightgreen"))
+        self.cellFormat2.setBackground(QtGui.QColor("purple"))
     
     
     def initCalendar(self):
         self.calendar = QCalendarWidget(self)
         self.calendar.setMinimumDate(MIN_DATE)
+        self.calendar.setMinimumSize(QtCore.QSize(450,300))
         self.calendar.activated.connect(self.select_date)
         self.calendar.setStyleSheet("background-color : lightblue;")
 
@@ -38,29 +40,32 @@ class calendarWidget(QWidget):
             self.selectedDates.discard(date)
             self.calendar.setDateTextFormat(date, self.cellFormat1)
             if(self.currMemId!=-1):
-                self.db.removeCalender(QDatetoDateTime(date), self.currentMemId)
+                self.db.removeCalendar(QDatetoDateTime(date), self.currMemId)
         else:
             self.selectedDates.add(date)
             self.calendar.setDateTextFormat(date, self.cellFormat2)
             if(self.currMemId!=-1):
-                self.db.addCalender(QDatetoDateTime(date), self.currentMemId)
+                self.db.addCalendar(QDatetoDateTime(date), self.currMemId)
             
+
+    def paint_date(self,date) -> None:
+        self.selectedDates.add(date)
+        self.calendar.setDateTextFormat(date, self.cellFormat2)
+
             
     def refresh_calendar(self) -> None:
         self.currMemId = -1
         self.selectedDates = set()
-        iterDate = MIN_DATE
-        currDate = QDate.currentDate()
-        while iterDate<currDate:
-            self.calendar.setDateTextFormat(iterDate, self.cellFormat1)
+        self.calendar.setDateTextFormat(QDate(), self.cellFormat1)
     
     
-    def getMemeberCalendar(self,MemId : int) -> None:
+    def getMemberCalendar(self,MemId : int) -> None:
         self.refresh_calendar()
         self.currMemId = MemId
-        dates  = db.fetchCalender(MemId)
+        dates  = self.db.fetchCalender(MemId)
+        print(len(dates))
         for date in dates:
-            self.select_date(DateTimeToQDate(date))
+            self.paint_date(DateTimeToQDate(date))
         
             
 

@@ -14,6 +14,7 @@ class pendingListWidget(QWidget):
         self.listWidget = QListWidget(self)
         self.listWidget.setMinimumSize(QtCore.QSize(450,300))
         self.currentRow = 0
+        self.insertHead()
         self.displayPending()
     
     
@@ -28,9 +29,8 @@ class pendingListWidget(QWidget):
     
     def displayPending(self):
         self.emptyList()
-        self.insertHead()
         listItems = self.db.checkDueFees()
-        print(len(listItems))
+        print(f"Number of pending Fees : {len(listItems)}")
         self.insertItems(listItems)
         
         
@@ -46,9 +46,9 @@ class pendingListWidget(QWidget):
         
         
     def emptyList(self):
-        while self.currentRow >= 0:
+        while self.currentRow >= 1:
             self.popItem()
-        self.currentRow = 0
+        self.currentRow = 1
 
 
 

@@ -1,8 +1,8 @@
 import json
 from datetime import datetime
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import QDate
 from PyQt5 import QtCore
+from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QListWidgetItem
 
 MIN_TIME = datetime.min.time()
@@ -10,7 +10,7 @@ MIN_TIME = datetime.min.time()
 FEE_TYPES = {1:"Monthly",3:"Quaterly",6:"Half-Yearly",12:"Yearly"}
 
 def getConfig():
-    with open("../../config.json","r") as f:
+    with open("../config.json","r") as f:
         config = json.load(f)
     return config
 
@@ -21,7 +21,7 @@ def DateToDateTime(date):
 
 def QDatetoDateTime(date):
     s = date.toString("dd/MM/yyyy")
-    return datetime(*[int(i) for i in s.split("/")],0,0)
+    return datetime(*[int(i) for i in s.split("/")][::-1],0,0)
 
 
 def DateTimeToQDate(date):

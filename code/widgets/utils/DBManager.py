@@ -1,8 +1,8 @@
 # Importing Libraries
-from math import log10
+from math import log10, ceil
 from datetime import datetime
 from pymongo import MongoClient
-from .tools import DateToDateTime, memberDataToListItem, pendingDataToListItem
+from widgets.utils.tools import DateToDateTime, memberDataToListItem, pendingDataToListItem
 
 
 '''
@@ -42,8 +42,9 @@ class DBManager():
         self.infoCollection = self.db[config["infoCollection"]]
         self.calendarCollection = self.db[config["calendarCollection"]]
         self.MULTIPLIER = config["MULTIPLIER"]
-        self.numLen = log10(self.MULTIPLIER)
         self.itemsPerPage = config["itemsPerPage"]
+        self.numLen = log10(self.MULTIPLIER)
+        self.infoDocs = None
         if(not("MemId_1" in self.infoCollection.index_information())):
             print(self.infoCollection.create_index([('MemId', 1)],unique=True))
         if(not("Date_1" in self.calendarCollection.index_information())):
@@ -51,19 +52,25 @@ class DBManager():
 
         
     def insertInfo(self, data: dict) -> None:
+        if(data["MemId"] == "NA"):
+            data["MemId"] = self.getMemNum(data["Name"])
         self.infoCollection.insert_one(data)
         print(f"Data inserted for MemId : {data['MemId']}")
         
 
     def updateInfo(self, data: dict) -> None:
-        ID = data["MemId"]
-        self.infoCollection.find_one_and_replace({"MemId":ID}, data)
+        if(data["MemId"]=="NA"):
+            self.insertInfo(data)
+            return
+        ID = self.memIdToMemNum(data["MemId"])
+        data["MemId"] = ID
+        self.infoCollection.find_one_and_replace({"MemId":ID}, data, upsert=True)
         print(f"Updated Values for MemId : {data['MemId']}")
     
     
-    def searchInfo(self, string : str) -> list:
-        docs = []
-        for doc in self.infoCollection.find({"$or":[{"MemId":{"$regex":string,"$options":"i"}},
+    def searchInfo(self, string : str) -> None:
+        memNum = self.memIdToMemNum(string)
+        self.infoDocs =  self.infoCollection.find({"$or":[{"MemId":{"$regex":str(memNum),"$options":"i"}},
                                                     {"Name":{"$regex":string,"$options":"i"}},
                                                     {"NameSecondary":{"$regex":string,"$options":"i"}},
                                                     {"ResidentialAddress":{"$regex":string,"$options":"i"}},
@@ -71,21 +78,37 @@ class DBManager():
                                                     {"BusinessAddress":{"$regex":string,"$options":"i"}},
                                                     {"BusinessNumber":{"$regex":string,"$options":"i"}},
                                                     ]
-                                             }):
-            docs.append(doc)
-        return docs
-
+                                             })
     
-    def getMemberListItems(self, page : int):
+    def getMemberInfo(self, MemId : str):
+        memNum = self.memIdToMemNum(MemId)
+        for item in self.infoCollection.find({"MemId":memNum}):
+            return item
+    
+    
+    def getMemberList(self) -> None:
+        self.infoDocs = self.infoCollection.find({}).sort("MemId")
+        
+    
+    def getMaxMemberPages(self) -> int:
+        numDocs = len(list(self.infoDocs.clone()))
+        numPages = ceil(numDocs/self.itemsPerPage)
+        return numPages
+    
+    
+    def getMemberPage(self, page : int):
         items = []
         lower = (page-1)*self.itemsPerPage
         upper = page*self.itemsPerPage
-        for i, doc in enumerate(self.infoCollection.find({}).sort("MemId"),start=1):
+        if(self.infoDocs == None):
+            self.getMemberList()
+        for i, doc in enumerate(self.infoDocs,start=1):
             if(lower<i<=upper):
                 doc["ID"] = self.memNumToMemId(doc["MemId"])
                 items.append(memberDataToListItem(doc))
             elif(i>upper):
                 break
+        self.infoDocs.rewind()
         return items
 
 
@@ -135,21 +158,34 @@ class DBManager():
         return alphabet+number
     
     
-    def addCalender(self, date, MemNum) -> None:
+    def memIdToMemNum(self, memId: str) -> int:
+        if(not(memId[0].isalpha()) or not(memId[1:].isdigit())):
+            return -1
+        number1 = (ord(memId[0].upper())-ord('A'))*self.MULTIPLIER
+        number2 = int(memId[1:])
+        return number1 + number2
+    
+    
+    def addCalendar(self, date, MemId) -> None:
+        MemNum = self.memIdToMemNum(MemId)
         if(type(date)!=datetime):
             date = DateToDateTime(date)
+        if(self.calendarCollection.find_one({"Date":date})==None):
+            self.calendarCollection.insert_one({"Date":date,"MemIds":[]})
         self.calendarCollection.update_one({"Date":date},{"$addToSet":{"MemIds":MemNum}})
         print(f"Added MemId : {MemNum} to Date : {date}")
     
 
-    def removeCalender(self, date, MemNum) -> None:
+    def removeCalendar(self, date, MemId) -> None:
+        MemNum = self.memIdToMemNum(MemId)
         if(type(date)!=datetime):
             date = DateToDateTime(date)
         self.calendarCollection.update_one({"Date":date},{"$pull":{"MemIds":MemNum}})
         print(f"Removed MemId : {MemNum} to Date : {date}")
 
     
-    def fetchCalender(self, MemNum) -> list:
+    def fetchCalender(self, MemId) -> list:
+        MemNum = self.memIdToMemNum(MemId)
         dates = []
         for doc in self.calendarCollection.find({"MemIds":{"$elemMatch":{"$eq":MemNum}}}):
             dates.append(doc["Date"])
@@ -158,7 +194,7 @@ class DBManager():
 
 
 if __name__ == "__main__":
-    from ..utils.tools import getConfig
+    from utils.tools import getConfig
     
     config = getConfig()
     db = DBManager(config)

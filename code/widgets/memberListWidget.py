@@ -11,7 +11,7 @@ class memberListWidget(QWidget):
         self.db = db
         self.config = config
         self.listWidget = QListWidget(self)
-        self.listWidget.setMinimumSize(QtCore.QSize(600,450))
+        self.listWidget.setMinimumSize(QtCore.QSize(600,300))
         self.currentRow = 0
         self.currentPage = 1
         self.displayPage(self.currentPage)
@@ -21,7 +21,7 @@ class memberListWidget(QWidget):
         self.emptyList()
         if(page!=-1):
             self.currentPage = page
-        listItems = self.db.getMemberListItems(self.currentPage)
+        listItems = self.db.getMemberPage(self.currentPage)
         print(len(listItems))
         self.insertItems(listItems)
         
@@ -46,7 +46,6 @@ class memberListWidget(QWidget):
 
 if __name__ == "__main__":    
     import sys
-    sys.path.append("../")
     from PyQt5.QtWidgets import QApplication, QMainWindow
     from utils.DBManager import DBManager
     from utils.tools import getConfig
