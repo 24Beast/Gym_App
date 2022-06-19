@@ -115,23 +115,27 @@ class DBManager():
     def checkDueFees(self) -> list:
         docs = []
         today = datetime.today()
-        matches = self.infoCollection.aggregate([{
-            "$match" : {
-                "$expr" : {
-                    "$lt" : [
-                        "$FeeType",
-                        {"$dateDiff" : {
+        matches = self.infoCollection.aggregate([
+            {
+                "$addFields" : {
+                    "DueDate" : {
+                        "$dateAdd" : {
                             "startDate" : "$LastPaid",
-                            "endDate" : today,
-                            "unit" : "month"
-                            }
-                         } 
-                        ]
+                            "unit" : "month",
+                            "amount" : "$FeeType"
+                        }
                     }
                 }
             },
             {
-            "$sort" : {"LastPaid" : 1}
+                "$match" : {
+                    "$expr" : {
+                        "$gt" : ["$$NOW","$DueDate"]
+                        }
+                    }
+            },
+            {
+                "$sort"  : {"DueDate"  : 1}
             }
             ])
         for doc in matches:

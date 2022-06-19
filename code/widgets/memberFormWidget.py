@@ -41,16 +41,16 @@ class memberFormWidget(QWidget):
     
     def getFormInfo(self, MemId : str):
         if(MemId == "NA"):
-            self.leftLayout.itemAt(1).widget().setText(" ")
+            self.leftLayout.itemAt(1).widget().setText("")
             self.leftLayout.itemAt(3).widget().setText("2000-01-01 00:00:00")
-            self.leftLayout.itemAt(5).widget().setText(" ")
-            self.leftLayout.itemAt(7).widget().setText(" ")
-            self.leftLayout.itemAt(9).widget().setText(" ")
+            self.leftLayout.itemAt(5).widget().setText("")
+            self.leftLayout.itemAt(7).widget().setText("")
+            self.leftLayout.itemAt(9).widget().setText("")
             self.leftLayout.itemAt(11).widget().setText("2022-01-01 00:00:00")
             self.rightLayout.itemAt(1).widget().setText(MemId)
-            self.rightLayout.itemAt(3).widget().setText(" ")
-            self.rightLayout.itemAt(5).widget().setText(" ")
-            self.rightLayout.itemAt(7).widget().setText(" ")
+            self.rightLayout.itemAt(3).widget().setText("")
+            self.rightLayout.itemAt(5).widget().setText("")
+            self.rightLayout.itemAt(7).widget().setText("")
             self.rightLayout.itemAt(9).widget().setText("Monthly")
             return
         data = self.db.getMemberInfo(MemId)
@@ -69,16 +69,16 @@ class memberFormWidget(QWidget):
     
     def setFormInfo(self):
         data = {}
-        data["Name"] = self.leftLayout.itemAt(1).widget().text()
+        data["Name"] = self.leftLayout.itemAt(1).widget().text().strip()
         data["DOB"] = datetime.datetime.strptime(self.leftLayout.itemAt(3).widget().text(),"%Y-%m-%d %H:%M:%S")
-        data["ResidentialAddress"] = self.leftLayout.itemAt(5).widget().text()
-        data["BusinessAddress"] = self.leftLayout.itemAt(7).widget().text()
+        data["ResidentialAddress"] = self.leftLayout.itemAt(5).widget().text().strip()
+        data["BusinessAddress"] = self.leftLayout.itemAt(7).widget().text().strip()
         data["Fee"] = int(self.leftLayout.itemAt(9).widget().text())
         data["LastPaid"] = datetime.datetime.strptime(self.leftLayout.itemAt(11).widget().text(),"%Y-%m-%d %H:%M:%S")
         data["MemId"] = self.rightLayout.itemAt(1).widget().text()
-        data["NameSecondary"] = self.rightLayout.itemAt(3).widget().text()        
-        data["ResidentialNumber"] = self.rightLayout.itemAt(5).widget().text()
-        data["BusinessNumber"] = self.rightLayout.itemAt(7).widget().text()
+        data["NameSecondary"] = self.rightLayout.itemAt(3).widget().text().strip()    
+        data["ResidentialNumber"] = self.rightLayout.itemAt(5).widget().text().strip()
+        data["BusinessNumber"] = self.rightLayout.itemAt(7).widget().text().strip()
         data["FeeType"] = self.feeKeyRev.get((self.rightLayout.itemAt(9).widget().text()))
         self.db.updateInfo(data)
     

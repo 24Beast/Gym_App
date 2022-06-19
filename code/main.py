@@ -60,12 +60,15 @@ if __name__ == "__main__":
     from widgets.utils.tools import getConfig
     
     config = getConfig()
-
     db = DBManager(config)
 
     App = QApplication(sys.argv)
     window = QMainWindow()
     window.setGeometry(0, 0, 1600, 900)
+    
+    stylesheet="style.qss"
+    with open(stylesheet,"r") as fh:
+        App.setStyleSheet(fh.read())
 
     widget = mainWidget(config,db)
     window.setCentralWidget(widget)
