@@ -65,6 +65,7 @@ if __name__ == "__main__":
     App = QApplication(sys.argv)
     window = QMainWindow()
     window.setGeometry(0, 0, 1600, 900)
+    window.setWindowTitle(config["title"])
     
     stylesheet="style.qss"
     with open(stylesheet,"r") as fh:

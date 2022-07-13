@@ -2,6 +2,7 @@
     "DB":"GymDB",
     "infoCollection":"MemberData",
     "calendarCollection":"CalendarData",
+    "title" : "Diamond Health Club",
     "MULTIPLIER" : 10000,
     "itemsPerPage" : 20,
     "color1" : "grey",
