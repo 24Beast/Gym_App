@@ -1,5 +1,5 @@
-{"clientAddress":"mongodb://localhost:27017/",
-    "DB":"TestGymDB",
+{"clientAddress":"mongodb+srv://Dharam:Dharam24S@dgym.ebljt17.mongodb.net/test",
+    "DB":"GymDB",
     "infoCollection":"MemberData",
     "calendarCollection":"CalendarData",
     "MULTIPLIER" : 10000,

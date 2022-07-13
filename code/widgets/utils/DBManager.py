@@ -21,7 +21,8 @@ BusinessAddress : Str,
 BusinessNumber : Str
 Fee : Int,
 FeeType : Int,
-LastPaid : DateTime 
+LastPaid : DateTime,
+DOJ : DateTime
 }
 
 
@@ -114,7 +115,6 @@ class DBManager():
 
     def checkDueFees(self) -> list:
         docs = []
-        today = datetime.today()
         matches = self.infoCollection.aggregate([
             {
                 "$addFields" : {

@@ -1,6 +1,7 @@
 # Importing Libraries
 import datetime
-from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QFormLayout, QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import (QWidget, QLineEdit, QLabel, QComboBox,
+                             QFormLayout, QHBoxLayout, QPushButton)
 
 # Class Definition
 
@@ -10,13 +11,19 @@ class memberFormWidget(QWidget):
         super().__init__()
         self.db = db
         self.config = config
-        self.feeKey = {1 : "Monthly", 3 : "Quaterly", 6 : "Half Yearly", 12 : "Yearly"}
-        self.feeKeyRev = {"Monthly" : 1, "Quaterly" : 3 , "Half Yearly" : 6, "Yearly" : 12}
+        self.feeKey = {1 : 0, 3 : 1, 6 : 2, 12 : 3}
+        self.feeKeyRev = {0 : 1, 1 : 3 , 2 : 6, 3 : 12}
         self.submitButton = QPushButton(text = "Submit")
         self.submitButton.clicked.connect(self.setFormInfo)
         self.backButton = QPushButton("Back")
         self.initLayout()
-        
+        self.initComboBox()
+    
+
+    def initComboBox(self):
+        self.rightLayout.itemAt(9).widget().addItems(["Monthly","Quaterly","Half Yearly","Yearly"])
+        self.rightLayout.itemAt(9).widget().setCurrentIndex(0)
+
     def initLayout(self):
         self.layout = QHBoxLayout()
         self.leftLayout = QFormLayout()
@@ -31,7 +38,8 @@ class memberFormWidget(QWidget):
         self.rightLayout.addRow(QLabel("Father's Name :"), QLineEdit())
         self.rightLayout.addRow(QLabel("Residential Number :"), QLineEdit())
         self.rightLayout.addRow(QLabel("Business Number :"), QLineEdit())
-        self.rightLayout.addRow(QLabel("Fee Type :"), QLineEdit())
+        self.rightLayout.addRow(QLabel("Fee Type :"), QComboBox())
+        self.rightLayout.addRow(QLabel("DOJ : "), QLineEdit())
         self.rightLayout.addRow(self.submitButton)
         self.layout.addLayout(self.leftLayout)
         self.layout.addLayout(self.rightLayout)
@@ -51,7 +59,8 @@ class memberFormWidget(QWidget):
             self.rightLayout.itemAt(3).widget().setText("")
             self.rightLayout.itemAt(5).widget().setText("")
             self.rightLayout.itemAt(7).widget().setText("")
-            self.rightLayout.itemAt(9).widget().setText("Monthly")
+            self.rightLayout.itemAt(9).widget().setCurrentIndex(1)
+            self.rightLayout.itemAt(11).widget().setText("2022-01-01 00:00:00")
             return
         data = self.db.getMemberInfo(MemId)
         self.leftLayout.itemAt(1).widget().setText(data["Name"])
@@ -64,7 +73,8 @@ class memberFormWidget(QWidget):
         self.rightLayout.itemAt(3).widget().setText(data["NameSecondary"])
         self.rightLayout.itemAt(5).widget().setText(data["ResidentialNumber"])
         self.rightLayout.itemAt(7).widget().setText(data["BusinessNumber"])
-        self.rightLayout.itemAt(9).widget().setText(self.feeKey.get(data["FeeType"],"Undefined"))
+        self.rightLayout.itemAt(9).widget().setCurrentIndex(self.feeKey.get(data["FeeType"],"Undefined"))
+        self.rightLayout.itemAt(11).widget().setText(str(data["DOJ"]))
         
     
     def setFormInfo(self):
@@ -79,7 +89,8 @@ class memberFormWidget(QWidget):
         data["NameSecondary"] = self.rightLayout.itemAt(3).widget().text().strip()    
         data["ResidentialNumber"] = self.rightLayout.itemAt(5).widget().text().strip()
         data["BusinessNumber"] = self.rightLayout.itemAt(7).widget().text().strip()
-        data["FeeType"] = self.feeKeyRev.get((self.rightLayout.itemAt(9).widget().text()))
+        data["FeeType"] = self.feeKeyRev.get((self.rightLayout.itemAt(9).widget().currentIndex()))
+        data["DOJ"] = datetime.datetime.strptime(self.rightLayout.itemAt(11).widget().text(),"%Y-%m-%d %H:%M:%S")
         self.db.updateInfo(data)
     
 if __name__ == "__main__":    
