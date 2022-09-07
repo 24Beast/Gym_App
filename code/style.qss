@@ -5,4 +5,5 @@ QMainWindow{
 QListWidget{
     font-family: Arial;
     font-style: normal;
+    font-size: 10pt;
 }

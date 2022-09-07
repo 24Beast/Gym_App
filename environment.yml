@@ -1,4 +1,4 @@
-name: AppDev
+name: Gym
 channels:
   - conda-forge
   - defaults
@@ -187,4 +187,3 @@ dependencies:
   - zlib=1.2.11=h8ffe710_1014
   - pip:
     - dnspython==2.2.1
-prefix: F:\Anaconda3\envs\AppDev
