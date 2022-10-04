@@ -11,7 +11,7 @@ class memberListWidget(QWidget):
         self.db = db
         self.config = config
         self.listWidget = QListWidget(self)
-        self.listWidget.setMinimumSize(QtCore.QSize(600,300))
+        self.listWidget.setMinimumSize(QtCore.QSize(700,350))
         self.currentRow = 0
         self.currentPage = 1
         self.displayPage(self.currentPage)

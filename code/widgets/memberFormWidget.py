@@ -1,5 +1,6 @@
 # Importing Libraries
 import datetime
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import (QWidget, QLineEdit, QLabel, QComboBox,
                              QFormLayout, QHBoxLayout, QPushButton)
 
@@ -25,8 +26,10 @@ class memberFormWidget(QWidget):
         self.rightLayout.itemAt(9).widget().setCurrentIndex(0)
 
     def initLayout(self):
+        self.setMinimumSize(QtCore.QSize(700,350))
         self.layout = QHBoxLayout()
         self.leftLayout = QFormLayout()
+        self.leftLayout.setVerticalSpacing(25)
         self.leftLayout.addRow(QLabel("Name :"), QLineEdit())
         self.leftLayout.addRow(QLabel("DOB :"), QLineEdit())
         self.leftLayout.addRow(QLabel("Residential Address:"), QLineEdit())
@@ -34,6 +37,7 @@ class memberFormWidget(QWidget):
         self.leftLayout.addRow(QLabel("Fee :"), QLineEdit())
         self.leftLayout.addRow(QLabel("LastPaid: "), QLineEdit())
         self.rightLayout = QFormLayout()
+        self.rightLayout.setVerticalSpacing(25)
         self.rightLayout.addRow(QLabel("MemID :"), QLineEdit())
         self.rightLayout.addRow(QLabel("Father's Name :"), QLineEdit())
         self.rightLayout.addRow(QLabel("Residential Number :"), QLineEdit())
@@ -41,9 +45,9 @@ class memberFormWidget(QWidget):
         self.rightLayout.addRow(QLabel("Fee Type :"), QComboBox())
         self.rightLayout.addRow(QLabel("DOJ : "), QLineEdit())
         self.rightLayout.addRow(self.submitButton)
+        self.rightLayout.addRow(self.backButton)
         self.layout.addLayout(self.leftLayout)
         self.layout.addLayout(self.rightLayout)
-        self.layout.addWidget(self.backButton)
         self.setLayout(self.layout)
         
     

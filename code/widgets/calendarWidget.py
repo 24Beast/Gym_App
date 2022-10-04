@@ -30,7 +30,7 @@ class calendarWidget(QWidget):
     def initCalendar(self):
         self.calendar = QCalendarWidget(self)
         self.calendar.setMinimumDate(MIN_DATE)
-        self.calendar.setMinimumSize(QtCore.QSize(450,300))
+        self.calendar.setMinimumSize(QtCore.QSize(700,350))
         self.calendar.activated.connect(self.select_date)
         self.calendar.setStyleSheet("background-color : lightblue;")
 

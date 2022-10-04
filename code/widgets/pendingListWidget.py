@@ -12,7 +12,7 @@ class pendingListWidget(QWidget):
         self.db = db
         self.config = config
         self.listWidget = QListWidget(self)
-        self.listWidget.setMinimumSize(QtCore.QSize(600,300))
+        self.listWidget.setMinimumSize(QtCore.QSize(700,350))
         self.currentRow = 0
         self.insertHead()
         self.displayPending()
