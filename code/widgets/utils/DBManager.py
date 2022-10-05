@@ -81,6 +81,12 @@ class DBManager():
                                                     ]
                                              })
     
+
+    def deleteMember(self,string : str) -> None:
+        memNum = self.memIdToMemNum(string)
+        self.infoCollection.delete_one({"MemId" : memNum})
+        print(f"Deleted Member Number : {memNum}")
+
     def getMemberInfo(self, MemId : str):
         memNum = self.memIdToMemNum(MemId)
         for item in self.infoCollection.find({"MemId":memNum}):
@@ -158,7 +164,7 @@ class DBManager():
     
     def memNumToMemId(self, memNum : int) -> str:
         alphabet = chr(int(memNum/self.MULTIPLIER) + ord("A"))
-        number = str(memNum%self.MULTIPLIER).zfill(int(self.numLen)) 
+        number = str((memNum+1)%self.MULTIPLIER).zfill(int(self.numLen)) 
         return alphabet+number
     
     
@@ -166,7 +172,7 @@ class DBManager():
         if(not(memId[0].isalpha()) or not(memId[1:].isdigit())):
             return -1
         number1 = (ord(memId[0].upper())-ord('A'))*self.MULTIPLIER
-        number2 = int(memId[1:])
+        number2 = (int(memId[1:]) - 1)%self.MULTIPLIER
         return number1 + number2
     
     

@@ -126,6 +126,7 @@ class leftWidget(QWidget):
         self.layout.insertWidget(1, self.formWidget)
         self.formWidget.backButton.clicked.connect(self.callRecordsPage)
         self.formWidget.submitButton.clicked.connect(self.callRecordsPage)
+        self.formWidget.deleteButton.clicked.connect(self.callRecordsPage)
         self.setLayout(self.layout)
     
     

@@ -22,7 +22,6 @@ class memberListWidget(QWidget):
         if(page!=-1):
             self.currentPage = page
         listItems = self.db.getMemberPage(self.currentPage)
-        print(len(listItems))
         self.insertItems(listItems)
         
         

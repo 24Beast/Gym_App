@@ -16,6 +16,9 @@ class memberFormWidget(QWidget):
         self.feeKeyRev = {0 : 1, 1 : 3 , 2 : 6, 3 : 12}
         self.submitButton = QPushButton(text = "Submit")
         self.submitButton.clicked.connect(self.setFormInfo)
+        self.deleteButton = QPushButton(text = "Delete")
+        self.deleteButton.clicked.connect(self.deleteMem)
+        self.deleteButton.setStyleSheet("background-color: red")
         self.backButton = QPushButton("Back")
         self.initLayout()
         self.initComboBox()
@@ -36,6 +39,7 @@ class memberFormWidget(QWidget):
         self.leftLayout.addRow(QLabel("Business Address :"), QLineEdit())
         self.leftLayout.addRow(QLabel("Fee :"), QLineEdit())
         self.leftLayout.addRow(QLabel("LastPaid: "), QLineEdit())
+        self.leftLayout.addRow(self.deleteButton)
         self.rightLayout = QFormLayout()
         self.rightLayout.setVerticalSpacing(25)
         self.rightLayout.addRow(QLabel("MemID :"), QLineEdit())
@@ -97,6 +101,11 @@ class memberFormWidget(QWidget):
         data["DOJ"] = datetime.datetime.strptime(self.rightLayout.itemAt(11).widget().text(),"%Y-%m-%d %H:%M:%S")
         self.db.updateInfo(data)
     
+
+    def deleteMem(self):
+        memId = self.rightLayout.itemAt(1).widget().text()
+        self.db.deleteMember(memId)
+
 if __name__ == "__main__":    
     import sys
     from PyQt5.QtWidgets import QApplication, QMainWindow
