@@ -3,10 +3,10 @@ from datetime import datetime
 from PyQt5.QtGui import QColor
 from PyQt5 import QtCore
 from PyQt5.QtCore import QDate
-from PyQt5.QtWidgets import QListWidgetItem
+from PyQt5.QtWidgets import QListWidgetItem, QTableWidgetItem
 
 MIN_TIME = datetime.min.time()
-
+PENDING_COLS = ["ID","Name","FeeType","LastPaid"]
 FEE_TYPES = {1:"Monthly",3:"Quaterly",6:"Half-Yearly",12:"Yearly"}
 
 def getConfig():
@@ -37,10 +37,16 @@ def memberDataToListItem(data : dict, config = {"color1" : "grey"}):
     item.setText(text)
     return item
 
-def pendingDataToListItem(data : dict, config = {"color1" : "grey"}):
-    item = QListWidgetItem()
-    item.setTextAlignment(QtCore.Qt.AlignCenter)
-    text = f"{data['ID']}\t{data['Name']}\t{FEE_TYPES[data['FeeType']]}\t{data['LastPaid'].date()}"
-    item.setBackground(QColor(config["color1"]))
-    item.setText(text)
-    return item
+def pendingDataToTableItems(data : dict, config = {"color1" : "grey"}):
+    items = [QTableWidgetItem() for i in range(len(PENDING_COLS))]
+    for i,col in enumerate(PENDING_COLS):
+        if(col=="FeeType"):
+            text = str(FEE_TYPES[data['FeeType']])
+        elif(col=="LastPaid"):
+            text = str(data['LastPaid'].date())
+        else:
+            text = str(data[col])
+        items[i].setBackground(QColor(config["color1"]))
+        items[i].setText(text)
+        items[i].setTextAlignment(QtCore.Qt.AlignCenter)
+    return items

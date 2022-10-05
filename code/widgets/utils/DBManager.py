@@ -2,7 +2,7 @@
 from math import log10, ceil
 from datetime import datetime
 from pymongo import MongoClient
-from widgets.utils.tools import DateToDateTime, memberDataToListItem, pendingDataToListItem
+from widgets.utils.tools import DateToDateTime, memberDataToListItem, pendingDataToTableItems
 
 
 '''
@@ -140,7 +140,7 @@ class DBManager():
             ])
         for doc in matches:
             doc["ID"] = self.memNumToMemId(doc["MemId"])
-            docs.append(pendingDataToListItem(doc))
+            docs.append(pendingDataToTableItems(doc))
         return docs
         
     

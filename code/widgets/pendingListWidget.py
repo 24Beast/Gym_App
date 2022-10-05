@@ -1,7 +1,7 @@
 # Importing Libraries
 from PyQt5 import QtCore
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QListWidget, QLabel, QListWidgetItem
+from PyQt5.QtWidgets import QWidget, QTableWidget, QLabel, QTableWidgetItem, QHeaderView
 
 # Class Definition
 
@@ -11,20 +11,33 @@ class pendingListWidget(QWidget):
         super().__init__()
         self.db = db
         self.config = config
-        self.listWidget = QListWidget(self)
+        self.listWidget = QTableWidget(self)
+        self.listWidget.verticalHeader().setVisible(False)
+        self.listWidget.horizontalHeader().setVisible(False)
         self.listWidget.setMinimumSize(QtCore.QSize(700,350))
         self.currentRow = 0
+        self.headers = ["Member ID","Name","Fee Type","Last Paid"]
+        self.numColumns = len(self.headers)
         self.insertHead()
+        self.setDisplay()
         self.displayPending()
     
     
+    def setDisplay(self) -> None:
+        header = self.listWidget.horizontalHeader()
+        for i in range(self.numColumns):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+
+
     def insertHead(self) -> None:
-        item = QListWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeft)
-        text = "Member ID \t     Name   \t\t  Fee Type \t    Last Paid"
-        item.setBackground(QColor(self.config["color2"]))
-        item.setText(text)
-        self.insertItems([item])
+        items = []
+        for col,text in enumerate(self.headers):
+            self.listWidget.insertColumn(col)
+            item = QTableWidgetItem(text)
+            item.setTextAlignment(QtCore.Qt.AlignLeft)
+            item.setBackground(QColor(self.config["color2"]))
+            items.append(item)
+        self.insertItems([items])
             
     
     def displayPending(self):
@@ -36,12 +49,15 @@ class pendingListWidget(QWidget):
         
     def insertItems(self, items : list):
         for item in items:
-            self.listWidget.insertItem(self.currentRow, item)
+            self.listWidget.insertRow(self.currentRow)
+            for col in range(self.numColumns):
+                self.listWidget.setItem(self.currentRow, col, item[col])
             self.currentRow +=1
     
     
     def popItem(self):
-        self.listWidget.takeItem(self.currentRow)
+        for col in range(self.numColumns):
+            self.listWidget.takeItem(self.currentRow,col)
         self.currentRow -= 1
         
         
