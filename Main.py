@@ -38,7 +38,9 @@ class Ui_MainWindow(object):
         self.Add_Button = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.Add_Button.setObjectName("Add_Button")
         self.horizontalLayout.addWidget(self.Add_Button)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem)
         self.Search_Input = QtWidgets.QLineEdit(self.horizontalLayoutWidget)
         self.Search_Input.setObjectName("Search_Input")
@@ -109,6 +111,7 @@ class Ui_MainWindow(object):
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
